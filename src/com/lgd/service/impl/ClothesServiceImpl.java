@@ -19,4 +19,7 @@ public class ClothesServiceImpl implements ClothesService {
     public Clothes findByID(String cid) throws BusinessException {
         return clothesIO.findById(cid);
     }
+    public void update()throws BusinessException{
+        clothesIO.update();
+    }
 }

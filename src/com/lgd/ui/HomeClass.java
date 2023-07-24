@@ -71,6 +71,7 @@ public class HomeClass extends BaseClass{
             if(num>clothes.getNum()){
                 throw new BusinessException("product.num.error");
             }
+            clothes.setNum(clothes.getNum()-num);//减库存
             orderItem.setClothes(clothes);
             orderItem.setShoppingNum(num);
             orderItem.setSum(clothes.getPrice()*num);
@@ -85,6 +86,8 @@ public class HomeClass extends BaseClass{
                 case "2":
                     flag=false;
                     break;
+                default:
+                    break;
             }
         }
         order.setCreateDate(DateUtils.toDate(new Date()));
@@ -92,6 +95,8 @@ public class HomeClass extends BaseClass{
         order.setSum(sum);
         order.setOrderId(orderService.list().size()+1);
         orderService.buyProduct(order);
+        clothesService.update();
+        showProducts();
     }
 
     private void findOrderById() {
