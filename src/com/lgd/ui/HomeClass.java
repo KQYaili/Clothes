@@ -5,6 +5,7 @@ import com.lgd.bean.Order;
 import com.lgd.bean.OrderItem;
 import com.lgd.service.ClothesService;
 import com.lgd.service.OrderService;
+import com.lgd.service.UserService;
 import com.lgd.service.impl.ClothesServiceImpl;
 import com.lgd.service.impl.OrderServiceImpl;
 import com.lgd.utils.BusinessException;
@@ -15,11 +16,18 @@ import java.util.Date;
 import java.util.List;
 
 public class HomeClass extends BaseClass{
-    private OrderService orderService=new OrderServiceImpl();
-    private ClothesService clothesService=new ClothesServiceImpl();
+    private OrderService orderService;
+    private ClothesService clothesService;
+    public HomeClass(){
+        orderService= (OrderService) beanFactory.getBean("orderService");
+        clothesService= (ClothesService) beanFactory.getBean("clothesService");
+    }
     public void show(){
         showProducts();
         println("welcome"+currUser.getUsername());
+        menu();
+    }
+    public void menu(){
         boolean flag=true;
         while(flag){
             println(getString("home.function"));
@@ -27,7 +35,7 @@ public class HomeClass extends BaseClass{
             String select=input.nextLine();
             switch (select){
                 case "1"://查找全部订单
-                    findList();
+                    findOrderList();
                     flag=false;
                     break;
                 case "2"://查找订单
@@ -42,8 +50,11 @@ public class HomeClass extends BaseClass{
                         println(e.getMessage());
                     }
                     break;
+                case "4":
+                    showProducts();
+                    break;
                 case "0"://退出
-
+                    show();
                     flag=false;
                     System.exit(0);
                     break;
@@ -52,6 +63,44 @@ public class HomeClass extends BaseClass{
                     break;
             }
         }
+    }
+
+    private void findOrderList() {
+        List<Order> list =orderService.list();
+        for (Order o:list){
+            showOrder(o);
+        }
+        menu();
+    }
+
+    private void showOrder(Order o) {
+        print(getString("product.order.oid")+o.getOrderId());
+        print("\t"+getString("product.order.createDate")+o.getCreateDate());
+        println("\t"+getString("product.order.sum")+o.getSum());
+        ConsoleTable t = new ConsoleTable(9, true);
+        t.appendRow();
+        t.appendColumn("id")
+                .appendColumn("brand")
+                .appendColumn("style")
+                .appendColumn("color")
+                .appendColumn("size")
+                .appendColumn("price")
+                .appendColumn("description")
+                .appendColumn("shoppingNum")
+                .appendColumn("sum");
+        for(OrderItem c:o.getOrderItemList()){
+            t.appendRow();
+            t.appendColumn(c.getItemId())
+                    .appendColumn(c.getClothes().getBrand())
+                    .appendColumn(c.getClothes().getStyle())
+                    .appendColumn(c.getClothes().getColor())
+                    .appendColumn(c.getClothes().getSize())
+                    .appendColumn(c.getClothes().getPrice())
+                    .appendColumn(c.getClothes().getDescription())
+                    .appendColumn(c.getClothes().getNum())
+                    .appendColumn(c.getClothes().getNum()*c.getClothes().getPrice());
+        }
+        println(t.toString());
     }
 
     private void BuyProducts() throws BusinessException {
@@ -78,6 +127,7 @@ public class HomeClass extends BaseClass{
             sum+=orderItem.getSum();
             orderItem.setItemId(count++);
             order.getOrderItemList().add(orderItem);
+            println(getString("product.buy.continue"));
             String isBuy = input.nextLine();
             switch (isBuy){
                 case "1":
@@ -100,9 +150,19 @@ public class HomeClass extends BaseClass{
     }
 
     private void findOrderById() {
+        println(getString("product.order.input.oid"));
+        String oid=input.nextLine();
+        Order order=orderService.findById(Integer.parseInt(oid));
+        if(oid!=null){
+            showOrder(order);
+        }else {
+            println(getString("product.order.error"));
+        }
+        menu();
     }
 
     private void findList() {
+
     }
 
     private void showProducts(){

@@ -2,13 +2,6 @@ package com.lgd.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * <p> 描述: 生成控制台表格</p>
- *
- * @author vince
- * @version 1.0
- */
 public class ConsoleTable {
 
     private List<List> rows = new ArrayList<List>();
